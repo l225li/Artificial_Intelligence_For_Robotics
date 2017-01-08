@@ -66,7 +66,6 @@ def optimum_policy(grid,goal,cost):
 
     for i in range(len(policy)):
         print policy[i]
-
     return policy
 
 optimum_policy(grid, goal, cost)

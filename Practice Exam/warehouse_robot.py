@@ -76,8 +76,72 @@ todo = [2, 1]
 # modify code below
 # ----------------------------------------
 def plan(warehouse, dropzone, todo):
-    
-    return cost
+	# possible movement of robot
+	# analyse of the problem: robot doesn't have orientation, it can move in any direction even backwards
+	forward = [[-1, 0], #go up
+			   [-1,-1], #top left
+			   [ 0,-1], #left
+			   [ 1,-1], #bottom left
+			   [ 1, 0], #down
+			   [ 1, 1], #bottom right
+			   [ 0, 1], #right
+			   [-1, 1]] #top right
+	# cost of each movement in forward, diagonal movements cost 1.5 
+	costs = [1, 1.5, 1, 1.5, 1, 1.5, 1, 1.5]
+	cost = 0
+	# list of the position of boxes 
+	goal_list = []
+
+	# Uncomment for debugging
+
+	# print 'dropzone:',dropzone
+	# print 'todo:', todo 
+	# print 'warehouse'
+	# for i in range(len(warehouse)):
+	# 	print warehouse[i]
+	# print '\n'
+
+	# check the warehouses and record the postion of the boxes in todo list
+	for box in todo:
+		for x in range(len(warehouse)):
+			for y in range(len(warehouse[0])):
+				if warehouse[x][y] == box:
+					goal = [x, y]
+					goal_list.append(goal)
+	print goal_list
+
+	# iterate each boxes one by one
+	for goal in goal_list:
+		# dynamic programmming to get the shortest path between dropzone and goal box 
+		value = [[999 for row in range(len(warehouse[0]))] for col in range(len(warehouse))]
+		change =  True
+		while change:
+			change = False
+			for x in range(len(warehouse)):
+				for y in range(len(warehouse[0])):
+					if goal[0] == x and goal[1] == y:
+						if value[x][y] > 0:
+							value[x][y] = 0
+							# important: after picking up the box, mark the cell passable (0)
+							warehouse[x][y] = 0 
+							change = True
+					elif warehouse[x][y] == 0 or warehouse[x][y] == 'x':
+						for a in range(len(forward)):
+							x2 = x + forward[a][0]
+							y2 = y + forward[a][1]
+							if x2 >= 0 and x2 < len(warehouse) and y2 >= 0 and y2 < len(warehouse[0]):
+								v2 = value[x2][y2] + costs[a]
+								if v2 < value[x][y]:
+									change = True
+									value[x][y] = v2
+		# cost of picking up the box and coming back to dropzone is 2 times one single trip from goal to dropzone
+		cost += value[dropzone[0]][dropzone[1]] * 2
+		
+		# uncomment for debugging:
+		# for i in range(len(value)):
+		# 	print value[i]
+		# print '\n' 
+	return cost
     
 ################# TESTING ##################
        
@@ -114,6 +178,9 @@ def solution_check(test, epsilon = 0.00001):
         print "\nYou passed", correct_answers, "of", len(answer_list), "test cases. Try to get them all!"
         return False
 #Testing environment
+
+
+plan(warehouse, dropzone, todo)
 # Test Case 1 
 warehouse1 = [[ 1, 2, 3],
              [ 0, 0, 0],
@@ -154,5 +221,4 @@ testing_suite = [[warehouse1, warehouse2, warehouse3, warehouse4],
                  [todo1, todo2, todo3, todo4],
                  [true_cost1, true_cost2, true_cost3, true_cost4]]
 
-
-#solution_check(testing_suite) #UNCOMMENT THIS LINE TO TEST YOUR CODE
+solution_check(testing_suite) #UNCOMMENT THIS LINE TO TEST YOUR CODE
