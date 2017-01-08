@@ -73,6 +73,30 @@ def estimate_next_pos(measurement, OTHER = None):
 
     # You must return xy_estimate (x, y), and OTHER (even if it is None) 
     # in this order for grading purposes.
+    if not OTHER:
+        OTHER = []
+    avgdist = 0
+    avgdtheta = 0
+    OTHER.append(measurement)
+    dist = []
+    theta = []
+    if len(OTHER) > 1:
+        for i in range(len(OTHER) - 1):
+            dist.append(distance_between(OTHER[i],OTHER[i+1]))
+            theta.append(atan2(OTHER[i+1][1] - OTHER[i][1], OTHER[i+1][0] - OTHER[i][0]))
+    else: 
+        dist = [0]
+        theta = [0]
+    avgdist = sum(dist)/float(len(dist))
+    dtheta = []
+
+    if len(theta) > 1:
+        for i in range(len(theta) - 1):
+            dtheta.append((theta[i+1] - theta[i])%(2*pi))
+        avgdtheta = sum(dtheta) / float(len(dtheta))
+    xy_estimate = (measurement[0] + avgdist*cos(theta[-1] + avgdtheta), measurement[1] + avgdist*sin(theta[-1] + avgdtheta))
+    print "meas:", measurement
+    print "est:", xy_estimate
     return xy_estimate, OTHER 
 
 # A helper function you may find useful.
@@ -155,5 +179,6 @@ def naive_next_pos(measurement, OTHER = None):
 # How the robot class behaves.
 test_target = robot(2.1, 4.3, 0.5, 2*pi / 34.0, 1.5)
 test_target.set_noise(0.0, 0.0, 0.0)
-
-# demo_grading(naive_next_pos, test_target)
+#naive_next_pos(test_target.sense())
+estimate_next_pos(test_target.sense())
+demo_grading(estimate_next_pos, test_target)
